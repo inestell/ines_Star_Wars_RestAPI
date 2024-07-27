@@ -171,8 +171,6 @@ def get_favorites(user_id):
 
 @app.route('/favorites/user/<int:user_id>/planets/<int:planet_id>', methods=['POST'])
 def create_favorite_planet(user_id, planet_id):
-    user = User.query.get(user_id)
-    planet = Planets.query.get(planet_id)
     
     new_favorite_planet = Favorites(user_id = user_id, favorite_planet = planet_id)
 
