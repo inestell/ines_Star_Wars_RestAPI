@@ -159,15 +159,49 @@ def get_favorites(user_id):
 
     favorite_planets = (
         db.session.query(Favorites, Planets)
-        .join(Planets)
+        .join(Planets, Favorites.favorite_planet == Planets.id)
         .filter(Favorites.user_id == user_id)
         .all()
     )
 
-    list_favorite_planets = list(map(lambda x: x.serialize(), favorite_planets))
+    list_favorite_planets = [
+        {
+            "id": planet.id,
+            "name": planet.name,
+            "rotation_period": planet.rotation_period,
+            "orbital_period": planet.orbital_period,
+            "diameter": planet.diameter,
+            "climate": planet.climate,
+            "terrain": planet.terrain
+        }
+        for Favorites, planet in favorite_planets
+    ]
 
-    return jsonify(list_favorite_planets), 200
+    favorite_characters = (
+        db.session.query(Favorites, Characters)
+        .join(Characters, Favorites.favorite_character == Characters.id)
+        .filter(Favorites.user_id == user_id)
+        .all()
+    )
 
+    list_favorite_characters = [
+        {
+            "id": character.id,
+            "height": character.height,
+            "mass": character.mass,
+            "hair_color": character.hair_color,
+            "skin_color": character.skin_color,
+            "eye_color": character.eye_color,
+            "birth_year": character.birth_year,
+            "gender": character.gender
+        }
+        for Favorites, character in favorite_characters
+    ]
+
+    return jsonify(list_favorite_planets + list_favorite_characters), 200
+
+
+# Favorite Planets
 
 @app.route('/favorites/user/<int:user_id>/planets/<int:planet_id>', methods=['POST'])
 def create_favorite_planet(user_id, planet_id):
@@ -179,6 +213,50 @@ def create_favorite_planet(user_id, planet_id):
     
     return "Success", 200
 
+
+
+@app.route('/favorites/user/<int:user_id>/planets/<int:planet_id>', methods=['DELETE'])
+def delete_favorite_planet(user_id, planet_id):
+    
+    planet_to_delete = (db.session.query(Favorites)
+                        .filter(Favorites.user_id == user_id, Favorites.favorite_planet == planet_id)
+                        .first()
+                        )
+    
+    db.session.delete(planet_to_delete)
+    db.session.commit()
+
+    return "Sucess", 200
+
+
+
+
+# Favorite Characters
+
+@app.route('/favorites/user/<int:user_id>/characters/<int:character_id>', methods=['POST'])
+def create_favorite_character(user_id, character_id):
+    
+    new_favorite_character = Favorites(user_id = user_id, favorite_character = character_id)
+
+    db.session.add(new_favorite_character)
+    db.session.commit()
+    
+    return "Success", 200
+
+
+
+@app.route('/favorites/user/<int:user_id>/characters/<int:character_id>', methods=['DELETE'])
+def delete_favorite_character(user_id, character_id):
+    
+    character_to_delete = (db.session.query(Favorites)
+                        .filter(Favorites.user_id == user_id, Favorites.favorite_character == character_id)
+                        .first()
+                        )
+    
+    db.session.delete(character_to_delete)
+    db.session.commit()
+
+    return "Sucess", 200
 
 
 

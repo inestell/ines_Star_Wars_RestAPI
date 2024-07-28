@@ -20,7 +20,7 @@ class User(db.Model):
     
 class Characters(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250))
+    name = db.Column(db.String(250), unique=True)
     height = db.Column(db.Integer)
     mass = db.Column(db.Integer)
     hair_color = db.Column(db.String(250))
@@ -47,7 +47,7 @@ class Characters(db.Model):
 
 class Planets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250))
+    name = db.Column(db.String(250), unique=True)
     rotation_period = db.Column(db.Integer)
     orbital_period = db.Column(db.Integer)
     diameter = db.Column(db.Integer)
@@ -88,7 +88,8 @@ class Favorites(db.Model):
 
     def serialize(self):
         favorites = {
-            "id": self.id
+            "id": self.id,
+            "user_id": self.user_id
         }
         if self.favorite_character:
             favorites["character"] = self.favorite_character
